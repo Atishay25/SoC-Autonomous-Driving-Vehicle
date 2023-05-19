@@ -1,0 +1,282 @@
+
+<HTML>
+<HEAD>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<TITLE>CS 747: Programming Assignment 2</TITLE>
+</HEAD>
+<BODY>
+<center>
+<h2>
+CS 747: Programming Assignment 2
+</h2>
+<h3>
+(Prepared by Santhosh)
+</h3>
+
+</center>
+<p> In this assignment, you will write code to compute an optimal policy for a given MDP using the algorithms that were discussed in class: Value Iteration, Howard's Policy Iteration, and Linear Programming. 
+  The first part of the assignment is to implement these algorithms. Input to these algorithms will be an MDP and the expected output is the optimal value function, along with an optimal policy.</p>
+
+<p>MDP solvers have a variety of applications. As the second part of this assignment, you will use your
+    solver to find the shortest path between a given start state and an end state in a maze.</p>
+</p>
+
+<h3>Data</h3>
+  <p>The <code>data</code> directory in this <a href="./base.tar.gz">compressed directory</a> contains 2
+    folders: <code>mdp</code> and <code>maze</code>.
+	In the <code>mdp</code> folder, you are given six MDP instances (3 each for continuing and episodic tasks). A correct solution for each MDP is also given in the same folder, which you can use to test your code. In the <code>maze</code> folder, you are given 10 maze instances that you can use to test your code for the maze problem. Your code will also be evaluated on instances other than the ones provided.</p>
+  <h4>MDP file format</h4>
+  <p>Each MDP is provided as a text file in the following format.</p>
+  numStates  S  <br>
+  numActions A<br>
+  start st<br>
+  end ed1 ed2 ... edn<br>
+  transition <i>s1 ac s2 r p</i><br>
+  transition <i>s1 ac s2 r p</i><br>
+  . . .<br>
+  . . .<br>
+  . . .<br>
+  transition <i>s1 ac s2 r p</i><br>
+  mdptype <i>mdptype</i><br>
+  discount <i>gamma</i>
+  <p>The number of states S and the number of actions A will be
+    integers greater than 1, and at most 100. Assume that the states are numbered 0, 1,
+    ..., S - 1, and the actions are numbered 0, 1, ..., A -
+    1. Each line that begins with "transition" gives the reward and
+    transition probability corresponding to a transition, where R(s1, ac, s2) = r and
+    T(s1, ac, s2) = p. Rewards can be positive, negative, or
+    zero. Transitions with zero probabilities are not specified. <i>mdptype</i> will be one of <code>continuing</code> and <code>episodic</code>.  The
+    discount factor <i>gamma</i> is a real number between 0 (included)
+    and 1 (included). Recall that gamma is a part of the MDP: you must not change it inside your solver! Also recall that it is okay to use gamma = 1 in episodic tasks that guarantee termination; you will find such an example among the ones given.</p>
+  
+  <p> st is the start state, which you might need for
+    Task 2 (ignore for Task 1). ed1, ed2,..., edn are the end states
+    (terminal states). For continuing tasks with no terminal states, this list is replaced by -1.</p>
+
+
+  <p>To get familiar with the MDP file format, you can view and
+    run <code>generateMDP.py</code> (provided in
+    the <code>base</code> directory), which is a python script used to
+    generate random MDPs. Specify the number of states and actions, the
+    discount factor, type of mdp (episodic or continuing), and the random seed  as command-line arguments to this file. Two examples of how this script can be invoked are given below.</p>
+	<ul>
+	<li><code>python generateMDP.py  --S 2 --A 2 --gamma 0.90 --mdptype episodic --rseed 0</code></li>
+	<li><code>python generateMDP.py  --S 50 --A 20 --gamma 0.20 --mdptype continuing --rseed 0</code></li>
+	</ul>
+<h4>Maze file format</h4>
+  <p>Each maze is provided in a text file as a rectangular grid of 0's, 1's, 2, and 3's. An example is given here along with the visualisation.</p>
+  <p>
+    1 1 1 1 1 1 1 1 1 1 1<br>
+    1 0 0 0 0 0 0 0 1 0 1<br>
+    1 1 1 0 1 0 1 1 1 0 1<br>
+    1 3 0 0 1 0 1 0 1 0 1<br>
+    1 1 1 1 1 0 1 0 1 0 1<br>
+    1 0 0 0 1 0 1 0 0 0 1<br>
+    1 1 1 0 1 0 1 0 1 1 1<br>
+    1 0 0 0 0 0 0 0 1 0 1<br>
+    1 1 1 1 1 1 1 0 1 0 1<br>
+    1 0 0 0 0 2 0 0 0 0 1<br>
+    1 1 1 1 1 1 1 1 1 1 1<br><br>
+    Here 0 denotes an empty tile, 1 denotes an obstruction/wall, 2 denotes the start state and 3 denotes an end state. In the visualisation below, the white square is the end position and the yellow one is the start position.</p>
+
+  <p>
+    <center>
+      <table>
+        <tr>
+          <td>
+            <img width="300px" src="./grid.png">
+            <img width="300px" src="./path.png">
+          </td>
+        </tr>
+      </table>
+    </center>
+  </p>
+
+  <p>
+    The figure on the right shows the shortest path.
+  </p>
+
+  <hr>
+
+
+
+
+<h3>Task 1 - MDP Planning Algorithms</h3> 
+
+<p>Given an MDP, your program must compute the optimal value
+function V* and an optimal policy &pi;* by applying the algorithm that
+is specified through the command line. Create a python file
+called <code>planner.py</code>  which accepts the following command-line arguments. </p>
+<ul>
+<li><code>--mdp</code> followed by a path to the input MDP file, and</li>
+<li><code>--algorithm</code> followed by one of <code>vi</code>, <code>hpi</code>, and <code>lp</code>.</li>
+</ul>
+<p>Make no assumptions about the location of the MDP file relative to
+the current working directory; read it in from the path that will
+be provided. The algorithms specified above correspond to Value Iteration, Howard's Policy Iteration, and Linear Programming, respectively. Here are a few examples of
+how your planner might be invoked (it will always be invoked from its
+own directory).</p>
+<ul>
+<li><code>python planner.py --mdp /home/user/data/mdp-4.txt --algorithm vi</code></li>
+<li><code>python planner.py --mdp /home/user/temp/data/mdp-7.txt --algorithm hpi</code></li>
+<li><code>python planner.py --mdp /home/user/mdpfiles/mdp-5.txt --algorithm lp</code></li>
+</ul>
+<p> You are not expected to code up a solver for LP;
+rather, you can use available solvers as black-boxes (more below). Your
+effort will be in providing the LP solver the appropriate input based
+on the MDP, and interpreting its output appropriately. You are
+expected to write your own code for Value Iteration and Howard's Policy Iteration; you may
+not use any custom-built libraries that might be available for the
+purpose. You can use libraries for solving linear equations in the
+policy evaluation step but must write your own code for policy
+improvement. Recall that Howard's Policy Iteration switches <b>all</b>
+improvable states to some improving action; if there are two or more
+improving actions at a state, you are free to pick anyone.</p>
+<h4>Output Format</h4> 
+<p>The output of your planner must be in the following format
+and <strong>written to standard output</strong>.</p>
+<pre><code>V*(0)   &pi;*(0)
+V*(1)   &pi;*(1)
+.
+.
+.
+V*(S - 1)   &pi;*(S - 1)
+</code></pre>
+
+<p>In the <code>data/mdp</code> directory provided, you will find
+output files corresponding to the MDP files, which have solutions in
+the format above.</p>
+<p>Since your output will be checked automatically, make sure you have
+nothing printed to stdout other than the S lines as above in
+sequence. If the testing code is unable to parse your output, you will
+not receive any marks.</p>
+<blockquote>
+  <p><strong>Note:</strong></p>
+  
+  <ol>
+  <li>Your output has to be written to the standard output, not to any file.</li>
+  <li>For values, print at least 6 places after the decimal point. Print more if you'd like, but 6 (<code>xxx.123456</code>) will suffice.</li>
+  <li>If your code produces output that resembles the solution files: that is, S lines of the form
+
+<pre><code>value + "\t" + action + "\n"
+</code></pre>
+  
+  or even
+
+<pre><code>value + " " + action + "\n"
+</code></pre>
+  
+  <p>you should be okay. Make sure you don't print anything else.</p></li>
+  <li>If there are multiple optimal policies, feel free to print any one of them.</li>
+  </ol>
+</blockquote>
+
+<hr>
+<h3>Task 2 - Solving a maze using MDPs</h3> 
+<p>In this task, your objective is to find the shortest path from start
+    to end in a specified maze. The idea is to piggyback on the planner code you have already written in Task 1. </p>
+
+  <p><b>Note:</b> In this task, assume that any <b>invalid move doesn't
+      change the state</b> e.g., a right move doesn't change the state if there's a wall
+    on the immediate right of the current cell.</p>
+  <p>Your first step is to encode the maze as an MDP (use
+    the same format as described above). Then you will
+    use <code>planner.py </code> to find an optimal
+    policy. Finally, you will simulate the optimal policy on the maze in a
+    deterministic setting to extract a path from start to the end. Note that this path also corresponds to the shortest possible path
+    from start to end. Output the path as: A0 A1 A2 . . . .<br> Here
+    "A0 A1 A2 . . ." is the sequence of moves taken from the start state to
+    reach the end state along the simulated path. Each move must be one
+    of N (north), S (south), E (east), and W (west). See, for example, <code>solution10.txt</code> in the <code>maze</code> directory, for an illustrative solution.</p>
+  <p>To visualise the maze, use this command. <code>python visualize.py gridfile</code><br></p>
+  <p>To visualise your solution, use this command. <code>python visualize.py gridfile pathfile</code><br></p>
+  <p>
+    Create a python file called <code>encoder.py</code> that will encode the maze as an MDP and output the MDP. The code should run as:
+    <code>python encoder.py --grid gridfile > mdpfile</code><br></p>
+  <p>
+    We will then run <code>python planner.py --mdp mdpfile --algorithm vi > value_and_policy_file</code>.</p>
+
+  <p>
+    Also, create a python source file called <code>decoder.py</code> that will simulate the optimal policy and output the path taken between the start and end state given the file <code>value_and_policy_file</code> and the <code>gridfile</code>. The output format should be as specified
+    above. The script should run as follows.</p>
+  <p><code>python decoder.py --grid gridfile --value_policy value_and_policy_file</code></p>
+  </p>
+
+  
+  <hr>
+
+
+  <h3>Submission</h3>
+  
+
+  <p> There are two python scripts given to verify the correctness of your submission format and solution: <code>PlannerVerifyOutput.py</code> and <code>MazeVerifyOutput.py</code>. Both of these scripts accept <code> --algorithm </code> as a command-line argument. The following are a few examples that can help you understand how to invoke these scripts.
+  <ul>
+<li><code>python PlannerVerifyOutput.py</code> --> Tests all three algorithms on the all the MDP instances given to you in the <code>data/mdp</code> directory.</li>
+<li><code>python PlannerVerifyOutput.py --mdp --algorithm vi</code> --> Tests only value iteration algorithm on the all the MDP instances given to you in the <code>data/mdp</code> directory.</li>
+<li><code>python MazeVerifyOutput.py --mdp --algorithm vi</code> --> Tests all the maze instances that are given in <code>data/maze</code> directory. Here, <code>--algorithm</code> specifies the algorithm that you would like to run on the MDP generated by <code>encoder.py</code> (we will check using value iteration).</li>
+
+</ul>
+
+  <p>These scripts assume the location of the <code>data</code> directory to be in the same directory. Run these scripts to check the correctness of your submission format. Your code should pass all the checks written in the script. You will be penalised if your code does not pass all the checks.  </p>
+
+  <p> Your code for any of the algorithms should not take more than one minute to run on any test instance.</p>
+
+<p> Prepare a short <code>report.pdf</code> in which you put your design decisions, assumptions, and observations about the algorithms (if any). Also mention how you formulated the MDP for the maze problem.</p>
+  
+
+  <p>Place all the files in which you have written code in a
+    directory named <code>submission</code>. Tar and Gzip the directory to
+    produce a single compressed file
+    (submission.tar.gz</code>). It must contain the
+    following files. </p>
+  <ol>
+    <li><code>planner.py </code></li>
+    <li><code>encoder.py </code></li>
+    <li><code>decoder.py </code></li>
+    <li><code>report.pdf </code></li>
+    <li><code>references.txt </code></li>
+    <li>Any other files required to run your source code</li>
+  </ol>
+<p>Submit this compressed file on Moodle, under Programming Assignment 2.</p>
+<h3>Evaluation</h3> 
+<p>7 marks are reserved for Task 1 (2 marks each for the correctness of your
+Value Iteration and  Howard's Policy Iteration algorithms, and 3 marks for Linear Programming). </p>
+<p> 3 marks are allotted for the correctness of Task 2. </p>
+
+<p>We shall verify the correctness by computing and comparing optimal
+policies for a large number of unseen MDPs. If your code fails any
+test instances, you will be penalised based on the nature of the
+mistake made.</p>
+
+<p>The TAs and instructor may look at your source code to corroborate
+the results obtained by your program, and may also call you to a
+face-to-face session to explain your code.</p>
+
+<h3>Deadline and Rules</h3>
+
+<p>Your submission is due by 11.55 p.m., Friday, October 23. Finish
+  working on your submission well in advance, keeping enough time to
+  generate your data, compile the results, and upload to Moodle.</p>
+<p>Your submission will not be evaluated (and will be given a score of
+  zero) if it is not uploaded to Moodle by the deadline. Do not send
+  your code to the instructor or TAs through any other
+  channel. Requests to evaluate late submissions will not be
+  entertained.</p>
+<p>Your submission will receive a score of zero if your code does not
+execute on cs747 docker container. To make sure you have uploaded the right
+version, download it and check after submitting (but before the
+deadline, so you can handle any contingencies before the deadline
+lapses). 
+<p>You are expected to comply with the rules laid out in the "Academic
+Honesty" section on the course web page, failing which you are liable
+to be reported for academic malpractice.</p>
+ 
+<h3>References for Linear Programming</h3> 
+
+<p>For the Linear Programming part of the assignment, we recommend you
+to use the Python library <code>PuLP</code>. <code>PuLP</code> is
+convenient to use directly from Python code: here is
+a <a href="https://www.youtube.com/watch?v=7yZ5xxdkTb8">short
+tutorial</a> and here is
+a <a href="https://www.coin-or.org/PuLP/index.html">reference</a>.</p>
+
