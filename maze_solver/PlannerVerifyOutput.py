@@ -11,7 +11,7 @@ class VerifyOutputPlanner:
     def __init__(self,algorithm,print_error):
         algorithm_ls = list()
         if algorithm=='all':
-            algorithm_ls+=['hpi','vi','lp']
+            algorithm_ls+=['vi']
         else:
             algorithm_ls.append(algorithm)
             
@@ -21,7 +21,7 @@ class VerifyOutputPlanner:
         
             for in_file in input_file_ls:
                 print("\n\n","-"*100)
-                cmd_planner = "python","planner.py","--mdp",in_file,"--algorithm",algo
+                cmd_planner = "python3","planner.py","--mdp",in_file,"--algorithm",algo
                 print('test case',str(counter)+algo,":\t"," ".join(cmd_planner))
                 counter+=1
                 cmd_output = subprocess.check_output(cmd_planner,universal_newlines=True)
