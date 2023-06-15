@@ -14,9 +14,9 @@ class MazeVerifyOutput:
         for in_file in input_file_ls:
             print("\n\ntest instance",counter,"-"*100)
             counter+=1
-            cmd_encode = "python","encoder.py","--grid",in_file
-            cmd_planner = "python","planner.py","--mdp","mdpFile","--algorithm",algo
-            cmd_decode = "python","decoder.py","--grid",in_file,"--value_policy","value_and_policy_file"
+            cmd_encode = "python3","encoder.py","--grid",in_file
+            cmd_planner = "python3","planner.py","--mdp","mdpFile","--algorithm",algo
+            cmd_decode = "python3","decoder.py","--grid",in_file,"--value_policy","value_and_policy_file"
             
             print("Executing..."," ".join(cmd_encode))
             mdpFile = subprocess.check_output(cmd_encode,universal_newlines=True)
@@ -52,7 +52,7 @@ class MazeVerifyOutput:
         x = startIndex[0][0]
         y = startIndex[1][0]
         
-        direction_dict = {'N':[-1,0], 'E':[0,1],'W':[0,-1],'S':[1,0]}
+        direction_dict = {'N':[-1,0], 'E':[0,-1],'W':[0,1],'S':[1,0]}   # edited here a bit, opposed E <-> W
         direction_ls = ['N','E','W','S']
         
         for i in path_ls:
@@ -115,7 +115,7 @@ class MazeVerifyOutput:
             
         
 if __name__ == "__main__":
-    parser.add_argument("--algorithm",type=str,default="hpi")
+    parser.add_argument("--algorithm",type=str,default="vi")
     args = parser.parse_args()
     algo = MazeVerifyOutput(args.algorithm)
 
