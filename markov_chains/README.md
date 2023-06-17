@@ -44,3 +44,8 @@ A single float value denoting the probability of reaching given final state at t
 ```
 0.1
 ```
+
+### Running Command
+```
+python3 markov_chain.py < input0.txt
+```
