@@ -35,8 +35,8 @@ while(t > 0):
     #P_t = multiply(P_t,p,n)
     #t -= 1
 
-ans = "Probability of reaching state " + str(final_state) + " at time t = " + str(t1) + " starting from state " + str(initial_state) + " at t = 0 is : "
-print(ans,P_t[initial_state][final_state])
+prob = P_t[initial_state][final_state]
 
-
-
+# ans = "Probability of reaching state " + str(final_state) + " at time t = " + str(t1) + " starting from state " + str(initial_state) + " at t = 0 is : "
+# print(ans, prob)
+print(prob)
