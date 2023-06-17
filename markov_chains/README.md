@@ -1,8 +1,6 @@
 # Markov Chains
 
-Markov Chains is a stochastic model describing a sequence of possible events in which the
-probability of each event depends only on the state attained in the previous event. We can 
-represent it using a digraph, where the nodes represent states and edges represent transition probabilities.
+Markov Chains is a stochastic model describing a sequence of possible events in which the probability of each event depends only on the state attained in the previous event. We can represent it using a digraph, where the nodes represent states and edges represent transition probabilities.
 
 ## Assignment 1
 
@@ -45,7 +43,17 @@ A single float value denoting the probability of reaching given final state at t
 0.1
 ```
 
-### Running Command
+### Code
+I have implemented 2 approaches - 
+1. Using the solution explained above, that is by matrix exponentiation in `markov_chain.py`
 ```
 python3 markov_chain.py < input0.txt
 ```
+2. Using Dynamic Programming with a matrix of size $n \times T$ where `DP[i][j]` denotes probability of being in state $i$ at time $j$. At inital $t = 0$, we initialze the `DP[initial_state][0]` as 1 and rest all 0, and the final answer gets stored in `DP[final_state][T]`. The rest of the values are calculated by using -
+$$P(X_t = B) = \sum_{A} (P(X_{t-1} = A) \times P(A \rightarrow B)) $$
+$\forall A$ having edge incident on B
+
+```
+python3 markov_chain_DP.py < input0.txt
+```
+- Run `python3 generate.py` to generate random testcase and also run both the files on those, storing each output in `output` folder
