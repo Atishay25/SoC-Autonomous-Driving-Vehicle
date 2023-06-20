@@ -64,8 +64,8 @@ while s not in end:
     elif a == 1:
         s = states[i+1, j]
     elif a == 2:
-        s = states[i, j-1]
-    else:
         s = states[i, j+1]
+    else:
+        s = states[i, j-1]
 
 print(soln)

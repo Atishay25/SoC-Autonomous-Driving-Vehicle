@@ -63,7 +63,7 @@ for i in range(1,n-1):
         r = []
         t = []
             
-        # West
+        # North
         if states[i-1][j] != -1:
             s2.append(states[i-1][j])
             if maze[i-1][j] == 3:
@@ -73,7 +73,7 @@ for i in range(1,n-1):
         else:
             s2.append(states[i][j])
             r.append(-reward)
-        # East
+        # South
         if states[i+1][j] != -1:
             s2.append(states[i+1][j])
             if maze[i+1][j] == 3:
@@ -83,17 +83,7 @@ for i in range(1,n-1):
         else:
             s2.append(states[i][j])
             r.append(-reward)
-        # North
-        if states[i][j-1] != -1:
-            s2.append(states[i][j-1])
-            if maze[i][j-1] == 3:
-                r.append(reward)
-            else:
-                r.append(normie_reward)
-        else:
-            s2.append(states[i][j])
-            r.append(-reward)
-        # South
+        # East
         if states[i][j+1] != -1:
             s2.append(states[i][j+1])
             if maze[i][j+1] == 3:
@@ -103,6 +93,17 @@ for i in range(1,n-1):
         else:
             s2.append(states[i][j])
             r.append(-reward)
+        # West
+        if states[i][j-1] != -1:
+            s2.append(states[i][j-1])
+            if maze[i][j-1] == 3:
+                r.append(reward)
+            else:
+                r.append(normie_reward)
+        else:
+            s2.append(states[i][j])
+            r.append(-reward)
+
 
         for k in range(4):
             t.append("transition " + str(s1) + " " + str(k) + " " + str(s2[k]) + " " + str(r[k]) + " " + str(p[k]))

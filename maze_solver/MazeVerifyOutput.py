@@ -52,7 +52,7 @@ class MazeVerifyOutput:
         x = startIndex[0][0]
         y = startIndex[1][0]
         
-        direction_dict = {'N':[-1,0], 'E':[0,-1],'W':[0,1],'S':[1,0]}   # edited here a bit, opposed E <-> W
+        direction_dict = {'N':[-1,0], 'E':[0,1],'W':[0,-1],'S':[1,0]}
         direction_ls = ['N','E','W','S']
         
         for i in path_ls:
