@@ -36,8 +36,28 @@ class Task1():
         """
 
         # Replace with your implementation to determine actions to be taken
+        x = state[0]
+        y = state[1]
+        velocity = state[2]
+        head_angle = state[3]
+        dest_x = 350
+        dest_y = 0
+        angle = math.atan2(dest_y - y, dest_x - x) * 180/math.pi
+        if head_angle > 180:
+            head_angle -= 360
+
+        # print(angle, head_angle)
         action_steer = None
         action_acc = None
+        if abs(angle - head_angle) < 5:
+            action_steer = 1
+            action_acc = 4
+        else:
+            action_acc = 1
+            if angle - head_angle < 0:
+                action_steer = 0
+            else:
+                action_steer = 2
 
         action = np.array([action_steer, action_acc])  
 
@@ -87,6 +107,7 @@ class Task1():
                             sys.exit()
 
                 action = self.next_action(state)
+                
                 state, reward, terminate, reached_road, info_dict = simulator._step(action)
                 fpsClock.tick(FPS)
 
@@ -118,8 +139,29 @@ class Task2():
         """
 
         # Replace with your implementation to determine actions to be taken
+        x = state[0]
+        y = state[1]
+        velocity = state[2]
+        head_angle = state[3]
+        dest_x = 350
+        dest_y = 0
+        angle = math.atan2(dest_y - y, dest_x - x) * 180/math.pi
+        if head_angle > 180:
+            head_angle -= 360
+
+        # print(angle, head_angle)
         action_steer = None
         action_acc = None
+        if abs(angle - head_angle) < 5:
+            action_steer = 1
+            action_acc = 4
+        else:
+            action_acc = 1
+            if angle - head_angle < 0:
+                action_steer = 0
+            else:
+                action_steer = 2
+
 
         action = np.array([action_steer, action_acc])  
 
